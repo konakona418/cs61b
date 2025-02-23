@@ -50,6 +50,7 @@ public class IntListExercises {
      *  the first digit of x.
      */
     public static boolean firstDigitEqualsLastDigit(int x) {
+        x = Math.abs(x);
         if (x % 10 == 0) {
             return false;
         }
