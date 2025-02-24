@@ -1,6 +1,7 @@
 package game2048;
 
 import java.util.Formatter;
+import java.util.Iterator;
 import java.util.Observable;
 
 
@@ -114,10 +115,81 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
+        board.setViewingPerspective(side);
+        changed = tiltUp();
+
+
         checkGameOver();
         if (changed) {
             setChanged();
         }
+        board.setViewingPerspective(Side.NORTH);
+        return changed;
+    }
+
+    private boolean tiltUp() {
+        boolean changed;
+        changed = false;
+
+        int n = board.size();
+        for (int k = 0; k < size(); k++) {
+            for (int row = n - 2; row >= 0; row--) {
+                for (int col = 0; col < n; col++) {
+                    Tile tile = board.tile(col, row);
+                    Tile nextTile = board.tile(col, row + 1);
+
+                    if (tile == null) {
+                        continue;
+                    }
+
+                    if (nextTile == null) {
+                        board.move(col, row + 1, tile);
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        for (int row = n - 2; row >= 0; row--) {
+            for (int col = 0; col < n; col++) {
+                Tile tile = board.tile(col, row);
+                Tile nextTile = board.tile(col, row + 1);
+
+                if (tile == null || nextTile == null) {
+                    continue;
+                }
+
+                if (nextTile.value() == tile.value()) {
+                    board.move(col, row + 1, tile);
+                    score += 2 * tile.value();
+                    changed = true;
+                }
+            }
+        }
+
+        for (int k = 0; k < size(); k++) {
+            for (int row = n - 2; row >= 0; row--) {
+                for (int col = 0; col < n; col++) {
+                    Tile tile = board.tile(col, row);
+                    Tile nextTile = board.tile(col, row + 1);
+
+                    if (tile == null) {
+                        continue;
+                    }
+
+                    if (nextTile == null) {
+                        board.move(col, row + 1, tile);
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        /*if (nextTile.value() == tile.value()) {
+            board.move(col, row + 1, tile);
+            score += 2 * tile.value();
+            changed = true;
+        }*/
         return changed;
     }
 
@@ -138,6 +210,14 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        int n = b.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (b.tile(i, j) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +228,18 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int n = b.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                Tile tile = b.tile(i, j);
+                if (tile == null) {
+                    continue;
+                }
+                if (tile.value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,6 +251,31 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+
+        int n = b.size();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n - 1; j++) {
+                Tile tile1, tile2;
+                tile1 = b.tile(i, j);
+                tile2 = b.tile(i, j + 1);
+                if (tile1.value() == tile2.value()) {
+                    return true;
+                }
+            }
+        }
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n; j++) {
+                Tile tile1, tile2;
+                tile1 = b.tile(i, j);
+                tile2 = b.tile(i + 1, j);
+                if (tile1.value() == tile2.value()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
